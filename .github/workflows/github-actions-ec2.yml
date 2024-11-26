@@ -1,5 +1,6 @@
-name: Deploy-to-EC2-with-Load-Balancer
+name: Push-to-EC2
 
+# Trigger deployment only on push to main branch
 on:
   push:
     branches:
@@ -7,16 +8,14 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2 Instances behind Load Balancer
+    name: Deploy to EC2 on main branch push
     runs-on: ubuntu-latest
 
     steps:
-      
-      - name: Checkout the repository
+      - name: Checkout the files
         uses: actions/checkout@v2
 
-      
-      - name: Upload files to EC2 Instance 1
+      - name: Deploy to Server 1
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
@@ -24,17 +23,7 @@ jobs:
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
 
-      
-      - name: Upload files to EC2 Instance 2
-        uses: easingthemes/ssh-deploy@v2.1.5
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY2 }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS2 }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
-
-     
-      - name: Run commands on EC2 Instance 1
+      - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST_DNS }}
@@ -45,20 +34,5 @@ jobs:
             sudo apt-get install -y apache2
             sudo systemctl start apache2
             sudo systemctl enable apache2
-            sudo mv ${{ secrets.TARGET_DIR }}/* /var/www/html/
-            sudo systemctl restart apache2
-
-     
-      - name: Run commands on EC2 Instance 2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST_DNS2 }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY2 }}
-          script: |
-            sudo apt-get -y update
-            sudo apt-get install -y apache2
-            sudo systemctl start apache2
-            sudo systemctl enable apache2
-            sudo mv ${{ secrets.TARGET_DIR }}/* /var/www/html/
-            sudo systemctl restart apache2
+            cd home
+            sudo mv * /var/www/html
