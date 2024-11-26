@@ -13,11 +13,11 @@ jobs:
     steps:
       
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       
       - name: Upload files to EC2 Instance 1
-        uses: easingthemes/ssh-deploy@v2.1.5
+        uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
